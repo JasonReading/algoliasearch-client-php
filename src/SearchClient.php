@@ -257,6 +257,24 @@ class SearchClient
         return $index->waitTask($taskId, $requestOptions);
     }
 
+    public function copyIndexToApp($indexName, $newAppId, $newApiKey, $requestOptions = array())
+    {
+        $currentIndex = $this->initIndex($indexName);
+        $newIndex = static::create($newAppId, $newApiKey)->initIndex($indexName);
+
+        $settings = $currentIndex->getSettings();
+        $newIndex->setSettings($settings);
+
+        $objectsIterator = $currentIndex->browseObjects();
+        $newIndex->saveObjects($objectsIterator);
+
+        $synonymsIterator = $currentIndex->browseSynonyms();
+        $newIndex->saveSynonyms($synonymsIterator);
+
+        $rulesIterator = $currentIndex->browseRules();
+        $newIndex->saveRules($rulesIterator);
+    }
+
     public function custom($method, $path, $requestOptions = array(), $hosts = null)
     {
         return $this->api->send($method, $path, $requestOptions, $hosts);

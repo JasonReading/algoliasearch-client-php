@@ -699,23 +699,6 @@ class SearchIndex
         return $allResponses;
     }
 
-    public function migrateTo($newAppId, $newApiKey)
-    {
-        $newIndex = SearchClient::create($newAppId, $newApiKey)->initIndex($this->indexName);
-
-        $settings = $this->getSettings();
-        $newIndex->setSettings($settings);
-
-        $objectsIterator = $this->browseObjects();
-        $newIndex->saveObjects($objectsIterator);
-
-        $synonymsIterator = $this->browseSynonyms();
-        $newIndex->saveSynonyms($synonymsIterator);
-
-        $rulesIterator = $this->browseRules();
-        $newIndex->saveRules($rulesIterator);
-    }
-
     public function delete($requestOptions = array())
     {
         $response = $this->api->write(
