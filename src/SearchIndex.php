@@ -123,6 +123,17 @@ class SearchIndex
         return new IndexingResponse($response, $this);
     }
 
+    public function copySettingsTo($destIndexName, $requestOptions = array())
+    {
+        if (is_array($requestOptions)) {
+            $requestOptions['scope'] = array('settings');
+        } elseif ($requestOptions instanceof RequestOptions) {
+            $requestOptions->addBodyParameter('scope', array('settings'));
+        }
+
+        return $this->copyIndexTo($destIndexName, $requestOptions);
+    }
+
     public function getObject($objectId, $requestOptions = array())
     {
         return $this->api->read(
@@ -334,6 +345,21 @@ class SearchIndex
         return new ObjectIterator($this->indexName, $this->api, $requestOptions);
     }
 
+    public function copyTo($destIndexName, $requestOptions = array())
+    {
+        $response = $this->api->write(
+            'POST',
+            api_path('/1/indexes/%s/operation', $this->indexName),
+            array(
+                'operation' => 'copy',
+                'destination' => $destIndexName,
+            ),
+            $requestOptions
+        );
+
+        return new IndexingResponse($response, $this);
+    }
+
     public function searchSynonyms($query, $requestOptions = array())
     {
         if (is_array($requestOptions)) {
@@ -389,6 +415,17 @@ class SearchIndex
         );
 
         return new IndexingResponse($response, $this);
+    }
+
+    public function copySynonymsTo($destIndexName, $requestOptions = array())
+    {
+        if (is_array($requestOptions)) {
+            $requestOptions['scope'] = array('synonyms');
+        } elseif ($requestOptions instanceof RequestOptions) {
+            $requestOptions->addBodyParameter('scope', array('synonyms'));
+        }
+
+        return $this->copyIndexTo($destIndexName, $requestOptions);
     }
 
     public function replaceAllSynonyms($synonyms, $requestOptions = array())
@@ -498,6 +535,17 @@ class SearchIndex
         );
 
         return new IndexingResponse($response, $this);
+    }
+
+    public function copyRulesTo($destIndexName, $requestOptions = array())
+    {
+        if (is_array($requestOptions)) {
+            $requestOptions['scope'] = array('rules');
+        } elseif ($requestOptions instanceof RequestOptions) {
+            $requestOptions->addBodyParameter('scope', array('rules'));
+        }
+
+        return $this->copyIndexTo($destIndexName, $requestOptions);
     }
 
     public function replaceAllRules($rules, $requestOptions = array())
@@ -666,5 +714,17 @@ class SearchIndex
 
         $rulesIterator = $this->browseRules();
         $newIndex->saveRules($rulesIterator);
+    }
+
+    public function delete($requestOptions = array())
+    {
+        $response = $this->api->write(
+            'DELETE',
+            api_path('/1/indexes/%s', $this->indexName),
+            array(),
+            $requestOptions
+        );
+
+        return new IndexingResponse($response, $this);
     }
 }
